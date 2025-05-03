@@ -1,6 +1,8 @@
 // Fetch blog content from your own backend API
 function fetchBlogsFromBackend() {
-  fetch("http://localhost:5000/api/blogs")
+  fetch(
+    "https://life-insurance-website-template-uthayas-projects-5d5b23e4.vercel.app/api/blogs"
+  )
     .then((response) => response.json())
     .then((result) => {
       console.log("Fetched blog data:", result); // Log entire result to inspect
