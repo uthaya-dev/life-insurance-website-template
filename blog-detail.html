@@ -548,6 +548,65 @@
 
     <script src="js/config.js"></script>
     <script>
+      // Get the slug from the URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const slug = urlParams.get("slug");
+
+      // Fetch the blog content by slug
+      function fetchBlogBySlug(slug) {
+        fetch(
+          `https://life-insurance-website-template-uthayas-projects-5d5b23e4.vercel.app/api/blogs/${slug}` // Assuming the API allows fetching a single blog by slug
+        )
+          .then((response) => response.json())
+          .then((result) => {
+            if (!result || !result.items || result.items.length === 0) {
+              document.getElementById("blog-detail").innerHTML =
+                "<p>Blog not found.</p>";
+              return;
+            }
+
+            const blogItem = transformBlogData(
+              result.items[0],
+              result.includes
+            );
+            renderBlogDetail(blogItem);
+          })
+          .catch((err) => {
+            console.error("Error fetching blog:", err);
+            document.getElementById("blog-detail").innerHTML =
+              "<p>Error loading blog.</p>";
+          });
+      }
+
+      // Render blog detail
+      function renderBlogDetail(blogItem) {
+        const container = document.getElementById("blog-detail");
+
+        container.innerHTML = `
+    <h1>${blogItem.blogTitle}</h1>
+    <p><strong>Author:</strong> ${blogItem.blogAuthor}</p>
+    <p><strong>Published on:</strong> ${formatDate(blogItem.blogDate)}</p>
+    <p><strong>Tag:</strong> ${blogItem.blogTag}</p>
+    ${
+      blogItem.blogThumbnailImage
+        ? `<img src="${blogItem.blogThumbnailImage}" class="img-fluid rounded-top w-100" alt="${blogItem.blogTitle}" />`
+        : ""
+    }
+    <div>${blogItem.blogDescription}</div>
+  `;
+      }
+
+      // Format date
+      function formatDate(dateString) {
+        if (!dateString) return "";
+        const options = { day: "numeric", month: "short", year: "numeric" };
+        return new Date(dateString).toLocaleDateString("en-US", options);
+      }
+
+      // Trigger fetch when page loads
+      fetchBlogBySlug(slug);
+    </script>
+    <!-- <script>
       const urlParams = new URLSearchParams(window.location.search);
       const slug = urlParams.get("slug");
 
@@ -657,6 +716,6 @@
 
       // Fetch the blog by slug
       fetchBlogBySlug(slug);
-    </script>
+    </script> -->
   </body>
 </html>

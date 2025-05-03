@@ -25,6 +25,31 @@ app.get("/api/blogs", async (req, res) => {
   }
 });
 
+// Endpoint for fetching a single blog by slug
+app.get("/api/blogs/:slug", (req, res) => {
+  const slug = req.params.slug;
+
+  // Query Contentful API to get the specific blog based on the slug
+  const query = {
+    content_type: "blogs",
+    "fields.blogSlug": slug,
+  };
+
+  contentfulClient
+    .getEntries(query)
+    .then((entries) => {
+      if (entries.items.length > 0) {
+        res.json({ items: entries.items, includes: entries.includes });
+      } else {
+        res.status(404).json({ message: "Blog not found." });
+      }
+    })
+    .catch((err) => {
+      console.error("Error fetching blog:", err);
+      res.status(500).json({ message: "Error fetching blog." });
+    });
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
