@@ -550,6 +550,8 @@
     <script>
       const urlParams = new URLSearchParams(window.location.search);
       const slug = urlParams.get("slug");
+
+      // Fetch blog content by slug from the API
       function fetchBlogBySlug(slug) {
         const spaceId = CONFIG.CONTENTFUL_SPACE_ID;
         const token = CONFIG.CONTENTFUL_DELIVERY_TOKEN;
@@ -576,6 +578,7 @@
           });
       }
 
+      // Render rich text content (like paragraphs, lists, headings)
       function renderNode(node) {
         if (node.nodeType === "text") {
           const isBold = node.marks?.some((mark) => mark.type === "bold");
@@ -584,6 +587,7 @@
         return renderRichText([node]);
       }
 
+      // Render rich text content as HTML
       function renderRichText(nodes) {
         return nodes
           .map((node) => {
@@ -605,16 +609,19 @@
           .join("");
       }
 
+      // Transform the blog item and render it to the page
       function renderBlogDetail(blogItem, data) {
         const fields = blogItem.fields;
         const container = document.getElementById("blog-detail");
 
+        // Get the blog details
         const blogTitle = fields.blogTitle;
         const blogAuthor = fields.blogAuthor;
         const blogDate = fields.blogDate;
         const blogTag = fields.blogTag;
         const blogDescription = renderRichText(fields.blogDescription.content);
 
+        // Get the thumbnail image
         let thumbnailUrl = "";
         const imageId = fields.blogThumbnailImage?.sys?.id;
         if (imageId) {
@@ -626,20 +633,29 @@
           }
         }
 
+        // Render the blog detail page
         container.innerHTML = `
-        <h1>${blogTitle}</h1>
-        <p><strong>Author:</strong> ${blogAuthor}</p>
-        <p><strong>Published on:</strong> ${blogDate}</p>
-        <p><strong>Tag:</strong> ${blogTag}</p>
-        ${
-          thumbnailUrl
-            ? `<img src="${thumbnailUrl}" alt="${blogTitle}" style="max-width: 100%; height: auto; margin: 20px 0;" />`
-            : ""
-        }
-        <div>${blogDescription}</div>
-      `;
+          <h1>${blogTitle}</h1>
+          <p><strong>Author:</strong> ${blogAuthor}</p>
+          <p><strong>Published on:</strong> ${formatDate(blogDate)}</p>
+          <p><strong>Tag:</strong> ${blogTag}</p>
+          ${
+            thumbnailUrl
+              ? `<img src="${thumbnailUrl}" alt="${blogTitle}" style="max-width: 100%; height: auto; margin: 20px 0;" />`
+              : ""
+          }
+          <div>${blogDescription}</div>
+        `;
       }
 
+      // Format date
+      function formatDate(dateString) {
+        if (!dateString) return "";
+        const options = { day: "numeric", month: "short", year: "numeric" };
+        return new Date(dateString).toLocaleDateString("en-US", options);
+      }
+
+      // Fetch the blog by slug
       fetchBlogBySlug(slug);
     </script>
   </body>
