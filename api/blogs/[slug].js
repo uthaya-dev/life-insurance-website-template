@@ -5,6 +5,7 @@ export default async function handler(req, res) {
   // Enable CORS for all origins
   res.setHeader(
     "Access-Control-Allow-Origin",
+    "https://www.kaathaditechsolution.in",
     "https://kaathaditechsolution.in"
   );
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
