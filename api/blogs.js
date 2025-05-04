@@ -26,28 +26,41 @@ app.get("/api/blogs", async (req, res) => {
 });
 
 // Endpoint for fetching a single blog by slug
-app.get("/api/blogs/:slug", (req, res) => {
-  const slug = req.params.slug;
 
-  // Query Contentful API to get the specific blog based on the slug
-  const query = {
+app.get("/api/blogs/:slug", async (req, res) => {
+  const spaceId = process.env.CONTENTFUL_SPACE_ID;
+  const token = process.env.CONTENTFUL_DELIVERY_TOKEN;
+  const environment = process.env.CONTENTFUL_ENVIRONMENT || "master";
+  const { slug } = req.params;
+
+  const queryParams = new URLSearchParams({
     content_type: "blogs",
     "fields.blogSlug": slug,
-  };
+    access_token: token,
+  });
 
-  contentfulClient
-    .getEntries(query)
-    .then((entries) => {
-      if (entries.items.length > 0) {
-        res.json({ items: entries.items, includes: entries.includes });
-      } else {
-        res.status(404).json({ message: "Blog not found." });
-      }
-    })
-    .catch((err) => {
-      console.error("Error fetching blog:", err);
-      res.status(500).json({ message: "Error fetching blog." });
-    });
+  const url = `https://cdn.contentful.com/spaces/${spaceId}/environments/${environment}/entries?${queryParams}`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    // DEBUG LOGS
+    console.log("Request slug:", slug);
+    console.log("Contentful response:", JSON.stringify(data, null, 2));
+
+    if (data.items && data.items.length > 0) {
+      res.json({
+        items: data.items,
+        includes: data.includes,
+      });
+    } else {
+      res.status(404).send("Blog not found");
+    }
+  } catch (error) {
+    console.error("Error fetching blog from Contentful:", error);
+    res.status(500).send("Error fetching blog data");
+  }
 });
 
 app.listen(PORT, () => {
